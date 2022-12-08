@@ -1,0 +1,26 @@
+cabal-version: 1.12
+name:          solution
+version:       0.0.0
+build-type:    Simple
+
+executable solve
+  main-is:          Main.hs
+  other-modules:
+    Data.Tree.Zipper
+    Paths_solution
+
+  ghc-options:      -Wall -Wno-missing-signatures
+  build-depends:
+      attoparsec
+    , base                  >=4 && <5
+    , bytestring
+    , comonad
+    , containers
+    , mtl
+    , raw-strings-qq
+    , recursion-schemes
+    , split
+    , unordered-containers
+    , vector
+
+  default-language: GHC2021
