@@ -53,7 +53,7 @@ mkInput rows@(col : _) =
 elemIndex2 :: Eq a => a -> [[a]] -> Maybe (Int, Int)
 elemIndex2 e = asum . fmap (\(i, r) -> (i,) <$> List.elemIndex e r) . zip [0 ..]
 
-neighbors2 s = fmap (+ s) offsets
+neighbors bounds x = filter (Ix.inRange bounds) $ fmap (+ x) offsets
   where
     offsets =
       [ V2 1 0,
@@ -61,14 +61,6 @@ neighbors2 s = fmap (+ s) offsets
         V2 (-1) 0,
         V2 0 (-1)
       ]
-
-validNeighbors heights x =
-  filter
-    ( \n ->
-        Ix.inRange (Array.bounds heights) n
-          && heights ! n - heights ! x <= 1
-    )
-    $ neighbors2 x
 
 shortestPaths :: Ord a => (a -> [a]) -> [a] -> [NonEmpty a]
 shortestPaths step = go Set.empty . Seq.fromList . fmap Nel.singleton
@@ -78,14 +70,15 @@ shortestPaths step = go Set.empty . Seq.fromList . fmap Nel.singleton
       | x `Set.member` seen = go seen q
       | otherwise = p : go (Set.insert x seen) (List.foldl' (|>) q [n Nel.<| p | n <- step x])
 
-part1 Input {..} =
-  let Just path = List.find ((== end) . Nel.head) $ shortestPaths (validNeighbors heights) [start]
-   in length path - 1
+part1 Input {..} = length path - 1
+  where
+    allowedNeighbors x = filter (\n -> heights ! n - heights ! x <= 1) $ neighbors (Array.bounds heights) x
+    Just path = List.find ((== end) . Nel.head) $ shortestPaths allowedNeighbors [start]
 
-part2 Input {..} =
-  let startingPoints = [x | (x, h) <- Array.assocs heights, h == Char.ord 'a']
-      Just path = List.find ((== end) . Nel.head) $ shortestPaths (validNeighbors heights) startingPoints
-   in length path - 1
+part2 Input {..} = length path - 1
+  where
+    allowedNeighbors x = filter (\n -> heights ! x - heights ! n <= 1) $ neighbors (Array.bounds heights) x
+    Just path = List.find ((== Char.ord 'a') . (heights !) . Nel.head) $ shortestPaths allowedNeighbors [end]
 
 main = do
   rawInput <- BS.readFile "input.txt"
