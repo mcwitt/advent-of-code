@@ -1,0 +1,26 @@
+cabal-version: 1.12
+name:          solution
+version:       0.0.0
+build-type:    Simple
+
+executable solve
+  main-is:          Main.hs
+  other-modules:    Paths_solution
+  ghc-options:      -Wall -Wno-missing-signatures
+  build-depends:
+      array
+    , attoparsec
+    , base                  >=4 && <5
+    , bytestring
+    , containers
+    , foldl
+    , linear
+    , monadic-arrays
+    , mtl
+    , raw-strings-qq
+    , split
+    , transformers
+    , unordered-containers
+    , vector
+
+  default-language: GHC2021
