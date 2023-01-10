@@ -53,14 +53,6 @@ dragRightC (Z sx x []) = let x' : xs = reverse sx in Z [x'] x xs
 dragLeftC (Z (x' : sx) x xs) = Z sx x (x' : xs)
 dragLeftC (Z [] x xs) = let x' : sx = reverse xs in Z sx x [x']
 
-infixl 1 ><
-
-f >< n = iterate f >>> (!! n)
-
-dragC n
-  | n >= 0 = dragRightC >< n
-  | otherwise = dragLeftC >< (-n)
-
 minOn f x y
   | f x <= f y = x
   | otherwise = y
@@ -68,6 +60,18 @@ minOn f x y
 modC n d = minOn abs m (m - d)
   where
     m = mod n d
+
+infixl 1 ><
+
+f >< n = iterate f >>> (!! n)
+
+dragC d z = go z
+  where
+    n = zipperLength z
+    d' = d `modC` (n - 1)
+    go
+      | d' >= 0 = dragRightC >< d'
+      | otherwise = dragLeftC >< (-d')
 
 infixl 0 #
 
@@ -85,8 +89,7 @@ coordinates z =
 
 mix indexedNumbers z = foldl' go z indexedNumbers
   where
-    go z t@(_, k) = find (== t) z # dragC (k `modC` (n - 1))
-    n = zipperLength z
+    go z t@(_, k) = find (== t) z # dragC k
 
 part1 numbers =
   mix indexedNumbers (zipper indexedNumbers)
